@@ -17,6 +17,7 @@ var app = express();
 
 app.get('/', function (req, res) {
   res.send('Hello from Express.js (Node.js) on OpenShift!');
+  
 });
 
 app.listen(3000, function () {
