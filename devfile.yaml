@@ -41,8 +41,8 @@ commands:
       component: tools
       group:
         kind: build
-        isDefault: true        
-      label: Download dependencies
+        isDefault: true
+        label: Download dependencies
       workingDir: ${PROJECTS_ROOT}/nodejs-web-app/app
     id: 1-dependencies
   - exec:
@@ -50,6 +50,7 @@ commands:
       component: tools
       group:
         kind: run
+        isDefault: true
       label: Run the web app
       workingDir: ${PROJECTS_ROOT}/nodejs-web-app/app
     id: 2-run
