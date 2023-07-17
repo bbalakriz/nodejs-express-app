@@ -1,64 +1,78 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.2.0
 metadata:
   name: nodejs-web-app
+attributes:
+  controller.devfile.io/devworkspace-config:
+    name: devworkspace-config
+  controller.devfile.io/storage-type: per-workspace
+projects:
+  - name: nodejs-web-app
+    git:
+      checkoutFrom:
+          remote: origin
+      remotes:
+          origin: https://github.com/bbalakriz/nodejs-express-app
 components:
-  - name: tools
+  - attributes:
+      controller.devfile.io/merge-contribution: true
     container:
-      image: registry.redhat.io/devspaces/udi-rhel8:3.7
       endpoints:
         - exposure: public
-          name: nodejs
-          protocol: http
-          targetPort: 3000
+          name: app-url
+          protocol: https
+          targetPort: 8080
+      env:
+        - name: OPENVSX_REGISTRY_URL
+          value: https://open-vsx.org
+      image: registry.redhat.io/devspaces/udi-rhel8@sha256:a5a67003870daf10f941b0279a065358dd1ace6d40826462b91bae9868216eff
       memoryLimit: 1G
       mountSources: true
+      sourceMapping: /projects
       volumeMounts:
         - name: npm
           path: /home/user/.npm
+    name: tools
   - name: npm
     volume:
       size: 1G
 commands:
-  - id: 1-dependencies
-    exec:
-      label: "Download dependencies"
+  - exec:
+      commandLine: npm install
       component: tools
-      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
-      commandLine: "npm install"
       group:
         kind: build
-  - id: 2-run
-    exec:
-      label: "Run the web app"
-      component: tools
+      label: Download dependencies
       workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
-      commandLine: "nodemon app.js"
+    id: 1-dependencies
+  - exec:
+      commandLine: nodemon app.js
+      component: tools
       group:
         kind: run
-  - id: 3-install-and-run
-    exec:
-      label: "Run the web app (and download dependencies)"
-      component: tools
+      label: Run the web app
       workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
-      commandLine: "npm install; nodemon app.js"
+    id: 2-run
+  - exec:
+      commandLine: npm install; nodemon app.js
+      component: tools
       group:
         kind: run
-  - id: 4-debug
-    exec:
-      label: "Run the web app (debugging enabled)"
-      component: tools
+      label: Run the web app (and download dependencies)
       workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
-      commandLine: "nodemon --inspect app.js"
+    id: 3-install-and-run
+  - exec:
+      commandLine: nodemon --inspect app.js
+      component: tools
       group:
-        kind: debug
         isDefault: true
-  - id: 5-stopapp
-    exec:
-      label: "Stop the web app"
+        kind: debug
+      label: Run the web app (debugging enabled)
+      workingDir: ${PROJECTS_ROOT}/web-nodejs-sample/app
+    id: 4-debug
+  - exec:
+      commandLine: 'node_server_pids=$(pgrep -fx ''.*nodemon (--inspect )?app.js'' | tr "\\n" " ") && echo "Stopping node server with PIDs: ${node_server_pids}" &&  kill -15 ${node_server_pids} &>/dev/null && echo ''Done.'''
       component: tools
-      commandLine: >-
-          node_server_pids=$(pgrep -fx '.*nodemon (--inspect )?app.js' | tr "\\n" " ") &&
-          echo "Stopping node server with PIDs: ${node_server_pids}" && 
-          kill -15 ${node_server_pids} &>/dev/null && echo 'Done.'
       group:
         kind: run
+      label: Stop the web app
+    id: 5-stopapp
