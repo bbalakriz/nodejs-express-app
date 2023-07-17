@@ -42,7 +42,7 @@ commands:
       group:
         kind: build
         isDefault: true
-        label: Download dependencies
+      label: Download dependencies
       workingDir: ${PROJECTS_ROOT}/nodejs-web-app/app
     id: 1-dependencies
   - exec:
