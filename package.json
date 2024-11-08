@@ -12,6 +12,6 @@
   "author": "",
   "license": "EPL-2.0",
   "dependencies": {
-    "express": "^4.13.4"
+    "express": "^4.21.1"
   }
 }
